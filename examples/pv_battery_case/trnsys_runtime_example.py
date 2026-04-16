@@ -4,7 +4,7 @@ from stable_baselines3 import DQN
 
 thisModule = os.path.splitext(os.path.basename(__file__))[0]
 
-# 📦 لود مدل آموزش‌دیده RL
+
 model_path = r"E:\PHD\projects\paper8-Dr. Asadi\AI data\dqn_model_sb3"
 model = DQN.load(model_path)
 
@@ -31,25 +31,21 @@ def StartTime(TRNData):
         inputs[14]  # Total_houses_pv
     ], dtype=np.float32)
 
-    # 🚀 پیش‌بینی اکشن توسط مدل RL
+    
     action, _states = model.predict(state, deterministic=True)
 
-    # 🎯 نگاشت اکشن Discrete به درصد دشارژ باتری
     action_map = [0, 0.2, 0.4, 0.6, 0.8]
     battery_capacity = state[12] * 0.8  # battery_SOC * 80%
     battery_used = battery_capacity * action_map[action]
 
-    # 📦 محاسبه مصرف گرید خانه‌ها
     grid_usage_houses = max(
         state[7] - state[4] - state[14] - battery_used, 0
     )
 
-    # 💾 فقط خروجی‌های مرتبط با تصمیم AI به TRNSYS برگردانده می‌شوند
     TRNData[thisModule]["outputs"][0] = grid_usage_houses
     TRNData[thisModule]["outputs"][1] = battery_used
     TRNData[thisModule]["outputs"][2] = action
 
-    # 📝 برای log در پایان
     TRNData[thisModule]["rl_results_history"].append({
         "time": state[0],
         "grid_usage_houses": grid_usage_houses,
